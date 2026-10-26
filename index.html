@@ -6,12 +6,8 @@
 <meta name="theme-color" content="#2a0a3d">
 <title>For You 💖</title>
 
-<!-- =====================================================================
-     ⚙️  URL PARAMETERS — NO CODE EDITING NEEDED
-     ===================================================================== -->
+<!-- ===================================================================== -->
 <script>
-  // Everything is read from the URL:  /?name=Priya&photo=https://...jpg&msg=Hello&from=Riya
-  // Open  /?admin=true  (or the bare URL with no name) to get the creator form.
   const params = new URLSearchParams(location.search);
   const FRIEND_NAME = (params.get('name') || '').trim();
   const FRIEND_PHOTO_URL = (params.get('photo') || '').trim();
@@ -20,9 +16,9 @@
   const ADMIN_MODE = params.get('admin') === 'true' || !FRIEND_NAME;
 
   const DEFAULT_MESSAGE =
-    "You mean the world to me, and I'm so sorry I wasn't there the way you deserved on your birthday. " +
-    "You are my favorite person and I'm endlessly grateful for you. I hope this year is full of everything that makes you glow. " +
-    "I love you, always. 💖";
+    "Natho kopam ga unnav ani telusu, andukke chala badhaga undi. Neeku ee madhya chala sarlu hurt chesanu, truly sorry ra. " +
+    "Belated Happy Birthday! Nuvvu naaku ento telusu, eppudu na face lo navvu ravali anna, natho undali anna nuvve kavali. " +
+    "Please ee gola antha apesi e sari maaf cheseyi, let's be normal again! ❤️";
   const BIRTHDAY_MESSAGE = CUSTOM_MSG || DEFAULT_MESSAGE;
   const CAPTIONS = [
     "I'm so sorry I missed your day.",
@@ -186,7 +182,6 @@
   <span id="musicLabel">Music</span>
 </button>
 
-<!-- ============ PHASE 1: THE APOLOGY ============ -->
 <!-- ============ CREATOR FORM (admin mode) ============ -->
 <section id="pForm" class="phase">
   <div class="wrap">
@@ -195,12 +190,12 @@
       <p class="form-sub">Fill this in, then send the generated link to your friend.</p>
 
       <label>Friend's Name
-        <input id="fName" type="text" maxlength="40" placeholder="e.g. Priya" autocomplete="off">
+        <input id="fName" type="text" maxlength="40" placeholder="e.g. Mounika" autocomplete="off">
       </label>
       <label>Photo URL (image link)
-        <input id="fPhoto" type="url" inputmode="url" placeholder="https://example.com/her-photo.jpg" autocomplete="off">
+        <input id="fPhoto" type="url" inputmode="url" placeholder="https://i.postimg.cc/.../image.jpg" autocomplete="off">
       </label>
-      <p class="hint">Use a direct image link (ending in .jpg / .png). Tip: upload on imgbb.com or postimages.org and copy the “direct link”.</p>
+      <p class="hint">Use a direct image link (ending in .jpg / .png). Tip: upload on postimages.org and copy the “direct link”.</p>
       <label>Apology / Birthday Message
         <textarea id="fMsg" rows="4" maxlength="600" placeholder="Write something from the heart…"></textarea>
       </label>
@@ -367,10 +362,21 @@ function loop(t) {
 }
 requestAnimationFrame(loop);
 
-/* Tap/click bursts + gentle pointer trail */
+/* Tap/click bursts + auto music trigger on first interaction */
 let lastTrail = 0;
-addEventListener('pointerdown', e => burst(e.clientX, e.clientY, 14));
+function handleFirstInteraction() {
+  if (!musicOn && (!ac || ac.state !== 'running')) {
+    setMusic(true);
+  }
+}
+
+addEventListener('pointerdown', e => {
+  handleFirstInteraction();
+  burst(e.clientX, e.clientY, 14);
+});
+
 addEventListener('pointermove', e => {
+  handleFirstInteraction();
   const now = performance.now();
   if (now - lastTrail < 45) return;
   if (e.pointerType === 'mouse' && e.buttons === 0 && Math.random() < .6) return;
@@ -451,13 +457,13 @@ photo.onload  = () => { photo.classList.remove('hidden'); $('photoFallback').cla
 photo.onerror = () => { photo.classList.add('hidden'); $('photoFallback').classList.remove('hidden'); };
 function validPhoto(u) {
   if (!u) return false;
-  if (/^(https?:)?\/\//i.test(u)) return true;                       // absolute http(s) link
-  return /^[\w\-./]+\.(jpe?g|png|gif|webp|avif)$/i.test(u);          // file next to index.html
+  if (/^(https?:)?\/\//i.test(u)) return true;
+  return /^[\w\-./]+\.(jpe?g|png|gif|webp|avif)$/i.test(u);
 }
-if (validPhoto(FRIEND_PHOTO_URL)) photo.src = FRIEND_PHOTO_URL;      // photo comes from ?photo=
+if (validPhoto(FRIEND_PHOTO_URL)) photo.src = FRIEND_PHOTO_URL;
 else photo.onerror();
 
-/* ---------------- Music (WebAudio, no files needed) ---------------- */
+/* ---------------- Music (WebAudio) ---------------- */
 let ac, master, musicOn = false, barTimer, barIdx = 0;
 const CHORDS = [[261.63,329.63,392,523.25],[220,261.63,329.63,440],[174.61,220,261.63,349.23],[196,246.94,293.66,392]];
 const PATTERN = [0,1,2,3,2,1,2,3];
